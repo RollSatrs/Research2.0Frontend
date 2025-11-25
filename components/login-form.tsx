@@ -1,4 +1,4 @@
-"use client"  
+"use client"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -12,13 +12,28 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-export function LoginForm({ 
+export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const [fullname, setfullname] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+
+  const handlerSubmit =async(e: React.FormEvent) =>{
+    e.preventDefault()
+
+    try{
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json",},
+        body: JSON.stringify({email, password})
+
+      })
+    }catch(err){
+
+    }
+  }
+
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
@@ -30,12 +45,12 @@ export function LoginForm({
         </div>
         <Field>
           <FieldLabel htmlFor="email">Электронная почта</FieldLabel>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="example@mail.com" 
-            required 
-            value={email} 
+          <Input
+            id="email"
+            type="email"
+            placeholder="example@mail.com"
+            required
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </Field>
