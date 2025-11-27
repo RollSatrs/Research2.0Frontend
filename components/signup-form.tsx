@@ -12,11 +12,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { Spinner } from "./ui/spinner"
-import { toast } from "sonner"
-import { AlertError } from "./alert"
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip"
+import { useRouter } from "next/navigation";
 import { Register } from "@/lib/api/auth"
+import { ApiErr } from "@/type/api.interface"
 
 export function SignupForm({
   className,
@@ -29,10 +27,11 @@ export function SignupForm({
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
+    const router = useRouter()
     const handlerFunction = async(e: React.FormEvent)=>{
       e.preventDefault()
-
       try{
+        setLoading(true)
         setError("")
         console.log("1")
         if (password !== confirmPassword) {
@@ -41,14 +40,12 @@ export function SignupForm({
           setLoading(false)
           return
         }
+        await Register({fullname, email, password})
         console.log("2")
-        const data = await Register({fullname, email, password})
-        console.log('Успешна регистрация', data)
+        router.push("/auth/login")
 
       }catch(err: any){
         setError(err.message)
-        console.log("Ошибка: ",err)
-
       }finally{
         console.log('finaly')
         setLoading(false)

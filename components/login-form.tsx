@@ -11,6 +11,8 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Login } from "@/lib/api/auth"
+import { Spinner } from "./ui/spinner"
 
 export function LoginForm({
   className,
@@ -18,24 +20,26 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handlerSubmit =async(e: React.FormEvent) =>{
     e.preventDefault()
-
+    setError("")
+    setLoading(true)
     try{
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {"Content-Type": "application/json",},
-        body: JSON.stringify({email, password})
+      const data = await Login({email, password})
+      document.cookie= `token=${data.access_token}; path=/;`;
 
-      })
-    }catch(err){
-
+    }catch(err: any){
+      setError(err.message)
+    }finally{
+      setLoading(false)
     }
   }
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form onSubmit={handlerSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Вход в аккаунт</h1>
@@ -64,11 +68,25 @@ export function LoginForm({
               Забыли пароль?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </Field>
         <Field>
-          <Button>Войти</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? <Spinner className="mr-2" /> : null}
+            {loading ? "Входим..." : "Войти"}
+          </Button>
         </Field>
+        {error && (
+          <p className="text-red-600 text-sm mt-1">
+            {error}
+          </p>
+        )}
         <Field>
           <FieldDescription className="text-center">
             Нет аккаунта?{" "}
